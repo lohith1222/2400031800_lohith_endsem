@@ -1,4 +1,4 @@
-import React, { useReducer } from "react";
+import React, { useReducer, useState, useEffect } from "react";
 import "./App.css";
 
 const initialStudents = [
@@ -30,6 +30,18 @@ function attendanceReducer(state, action) {
 export default function App() {
   const [students, dispatch] = useReducer(attendanceReducer, initialStudents);
 
+  // Live clock state
+  const [timeString, setTimeString] = useState(() =>
+    new Date().toLocaleTimeString()
+  );
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      setTimeString(new Date().toLocaleTimeString());
+    }, 1000);
+    return () => clearInterval(t);
+  }, []);
+
   const totalPresent = students.filter((s) => s.status === "Present").length;
   const totalAbsent = students.filter((s) => s.status === "Absent").length;
 
@@ -41,6 +53,12 @@ export default function App() {
             <h1>Smart Classroom Attendance</h1>
             <p>Click a button to mark each student Present or Absent.</p>
           </div>
+
+          {/* present time / live clock */}
+          <div className="clock" aria-live="polite" style={{ marginRight: 12 }}>
+            {timeString}
+          </div>
+
           <button
             className="reset-btn"
             onClick={() => dispatch({ type: "RESET" })}
